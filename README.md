@@ -30,23 +30,50 @@ Home Assistant timer updates default duration whenever timer starts. if duration
 
 ## Styles Object
 
-| Object | key      | Description                           | Default |
-| ------ | -------- | ------------------------------------- | ------- |
-| rotor  | width    | single rotor width                    | 50px    |
-|        | height   | single rotor height                   | 80px    |
-| button | width    | button width                          | 50px    |
-|        | location | button location - right, bottom, hide | right   |
-
+<table>
+<thead>
+<tr>
+<th>Object</th>
+<th>key</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td rowspan=2>rotor</td>
+<td>width</td>
+<td>single rotor width</td>
+<td>50px</td>
+</tr>
+<tr>
+<td>height</td>
+<td>single rotor height</td>
+<td>80px</td>
+</tr>
+<tr>
+<td rowspan=2>button</td>
+<td>width</td>
+<td>button width</td>
+<td>50px</td>
+</tr>
+<tr>
+<td>location</td>
+<td>button location - right, bottom, hide</td>
+<td>right</td>
+</tr>
+</tbody>
+</table>
 ## Example
 
 ```yaml
 - type: custom:flipdown-timer-card
   entity: timer.timer
-  show_hour: false #optional
-  show_title: false #optional
-  theme: dark #optional
-  duration: '00:00:00' #optional
-  styles: #optional
+  show_hour: false
+  show_title: false
+  theme: dark
+  duration: '00:00:00'
+  styles:
     rotor:
       width: 60px
       height: 80px
