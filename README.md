@@ -1,3 +1,5 @@
+[![hacs_badge](https://img.shields.io/badge/HACS-Custom-41BDF5.svg?style=for-the-badge)](https://github.com/hacs/integration)
+
 # Flipdown Timer Card
 
 Card for timer entities in the Lovelace user interface of Home Assistant
@@ -11,7 +13,7 @@ Card for timer entities in the Lovelace user interface of Home Assistant
 
 ## Installation
 
-- Install using HACS and add this card.
+- Add this repository to HACS custom repositories and install using HACS.
 - Or Download the 'flipdown-timer-card.js' from the latest release.
 
 ## Configuration
@@ -59,11 +61,12 @@ Home Assistant timer updates default duration whenever timer starts. if duration
 </tr>
 <tr>
 <td>location</td>
-<td>button location - right, bottom, hide</td>
+<td>button location(right, bottom, hide)</td>
 <td>right</td>
 </tr>
 </tbody>
 </table>
+
 ## Example
 
 ```yaml
