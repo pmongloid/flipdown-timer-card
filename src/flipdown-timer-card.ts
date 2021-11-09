@@ -80,7 +80,7 @@ export class FlipdownTimer extends LitElement {
     if (config.test_gui) {
       getLovelace().setEditMode(true);
     }
-    console.log(this.parentNode)
+
     this.config = {
       ...config,
     };
@@ -103,7 +103,7 @@ export class FlipdownTimer extends LitElement {
 
   public disconnectedCallback(): void {
     super.disconnectedCallback();
-    this.fd.stop();
+    if(this.fd) this.fd.stop();
   }
 
   public connectedCallback(): void {
