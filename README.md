@@ -1,4 +1,4 @@
-[![hacs_badge](https://img.shields.io/badge/HACS-Custom-41BDF5.svg?style=for-the-badge)](https://github.com/hacs/integration)
+[![hacs_badge](https://img.shields.io/badge/HACS-Default-41BDF5.svg?style=for-the-badge)](https://github.com/hacs/integration)
 
 # Flipdown Timer Card
 
@@ -13,7 +13,7 @@ Card for timer entities in the Lovelace user interface of Home Assistant
 
 ## Installation
 
-- Add this repository to HACS custom repositories and install using HACS.
+- Install using HACS. 
 - Or Download the 'flipdown-timer-card.js' from the latest release.
 
 ## Configuration
