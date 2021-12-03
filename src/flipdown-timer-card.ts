@@ -122,6 +122,7 @@ export class FlipdownTimer extends LitElement {
 
     if (!fddiv) return false;
     if (fddiv && !this.fd) this._init();
+    this.fd.state = state.state;
 
     if (state.state === 'active') {
       this.fd.button1.textContent = "stop";
@@ -211,23 +212,30 @@ export class FlipdownTimer extends LitElement {
     const fddiv = this.shadowRoot?.getElementById('flipdown');
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const timeRemaining = new Date().getTime() / 1000;
+    const state = this.hass.states[this.config.entity!].state;
+
     // eslint-disable-next-line @typescript-eslint/camelcase
     if (!this.fd) {
       this.fd = new FlipDown(timeRemaining, fddiv, {
-        show_header: false, //this.config.show_header,
+        show_header: this.config.show_header,
         show_hour: this.config.show_hour,
         bt_location: this.config.styles.button && this.config.styles.button.hasOwnProperty("location") ? this.config.styles.button.location : 'right',
         theme: this.config.theme
-      })._init();
+      })._init(state);
     }
 
+
     if (this.config.entity) {
-      fddiv?.querySelectorAll('.rotor').forEach((item, i) => {
+      fddiv?.querySelectorAll('.rotor-trans-top').forEach((item, i) => {
         item.addEventListener('click', () => {
-          this._handleRotorClick(item, i);
+          this._handleRotorClick(item, i, true);
         })
       });
-
+      fddiv?.querySelectorAll('.rotor-trans-bottom').forEach((item, i) => {
+        item.addEventListener('click', () => {
+          this._handleRotorClick(item, i, false);
+        })
+      });
       this.fd.button1.addEventListener('click', () => this._handleBtnClick(1));
       this.fd.button2.addEventListener('click', () => this._handleBtnClick(2));
     }
@@ -237,23 +245,42 @@ export class FlipdownTimer extends LitElement {
     this._init();
   }
 
-  private _handleRotorClick(item: any, param: number): boolean {
+  private _handleRotorClick(item: any, param: number, inc: boolean): boolean {
     const state = this.hass.states[this.config.entity!].state;
     if (state !== 'idle') return false;
     const max = [5, 9, 5, 9, 5, 9];
 
-    const currentValue = Number(item.querySelector('.rotor-leaf-rear').textContent);
-    const nextValue = (currentValue < max[param]) ? currentValue + 1 : 0;
-    item.querySelector('.rotor-leaf-rear').textContent = nextValue;
-    item.querySelector('.rotor-top').textContent = nextValue;
-    item.querySelector('.rotor-leaf').classList.add('flippedf')
+    const rotorTarget = item.offsetParent;
 
-    setTimeout(() => {
-      item.querySelector('.rotor-leaf-front').textContent = nextValue;
-      item.querySelector('.rotor-bottom').textContent = nextValue;
-      item.querySelector('.rotor-leaf').classList.remove('flippedf')
-    }, 200);
+    if (inc) {
+      const currentValue = Number(rotorTarget.querySelector('.rotor-leaf-rear').textContent);
+      const nextValue = (currentValue < max[param]) ? currentValue + 1 : 0;
+      rotorTarget.querySelector('.rotor-leaf-front').classList.add('front-bottom');
+      rotorTarget.querySelector('.rotor-leaf-rear').classList.add('rear-bottom');
+      rotorTarget.querySelector('.rotor-leaf-rear').textContent = nextValue;
+      rotorTarget.querySelector('.rotor-bottom').textContent = nextValue;
+      rotorTarget.querySelector('.rotor-leaf').classList.add('flippedfr')
 
+      setTimeout(() => {
+        rotorTarget.querySelector('.rotor-leaf-front').textContent = nextValue;
+        rotorTarget.querySelector('.rotor-top').textContent = nextValue;
+        rotorTarget.querySelector('.rotor-leaf').classList.remove('flippedfr');
+        rotorTarget.querySelector('.rotor-leaf-front').classList.remove('front-bottom');
+        rotorTarget.querySelector('.rotor-leaf-rear').classList.remove('rear-bottom');
+      }, 200);
+    } else {
+      const currentValue = Number(rotorTarget.querySelector('.rotor-leaf-rear').textContent);
+      const nextValue = (currentValue > 0) ? currentValue - 1 : max[param];
+      rotorTarget.querySelector('.rotor-leaf-rear').textContent = nextValue;
+      rotorTarget.querySelector('.rotor-top').textContent = nextValue;
+      rotorTarget.querySelector('.rotor-leaf').classList.add('flippedf')
+
+      setTimeout(() => {
+        rotorTarget.querySelector('.rotor-leaf-front').textContent = nextValue;
+        rotorTarget.querySelector('.rotor-bottom').textContent = nextValue;
+        rotorTarget.querySelector('.rotor-leaf').classList.remove('flippedf')
+      }, 200);
+    }
     return true;
   }
 
@@ -261,8 +288,11 @@ export class FlipdownTimer extends LitElement {
     const state = this.hass.states[this.config.entity!].state;
     switch (param) {
       case 1:
-        const duration = this._getRotorTime();
+        let duration = this._getRotorTime();
         if (state === 'idle' && duration != '00:00:00') {
+          if (this.config.show_hour == 'auto') {
+            duration = duration.substr(3, 5) + ":00";
+          }
           this.hass.callService('timer', 'start', {
             entity_id: this.config.entity,
             duration: duration
