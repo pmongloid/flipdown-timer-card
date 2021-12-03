@@ -15,7 +15,7 @@
  * @param {string} n - Number to pad
  * @param {number} len - Desired length of number
  **/
- function pad(n, len) {
+function pad(n, len) {
   n = n.toString();
   return n.length < len ? pad("0" + n, len) : n;
 }
@@ -32,7 +32,7 @@ function appendChildren(parent, children) {
   });
 }
 
- export class FlipDown {
+export class FlipDown {
   constructor(uts, el, opt = {}) {
     // If uts is not specified
     if (typeof uts !== "number") {
@@ -50,6 +50,10 @@ function appendChildren(parent, children) {
     // Initialised?
     this.initialised = false;
     this.active = false;
+    this.state = "";
+    this.headerShift = false;
+    this.delimeterBlink = null;
+    this.delimeterIsBlinking = false;
     // Time at instantiation in seconds
     this.now = this._getTime();
 
@@ -66,6 +70,7 @@ function appendChildren(parent, children) {
     this.element = el;
 
     // Rotor DOM elements
+    this.rotorGroups = [];
     this.rotors = [];
     this.rotorLeafFront = [];
     this.rotorLeafRear = [];
@@ -213,7 +218,8 @@ function appendChildren(parent, children) {
    * @description Initialise the countdown
    * @author PButcher
    **/
-  _init() {
+  _init(state) {
+    this.state = state;
     this.initialised = true;
 
     // Check whether countdown has ended and calculate how many digits the day counter needs
@@ -245,11 +251,13 @@ function appendChildren(parent, children) {
     for (let i = 0; i < 3; i++) {
       const otherRotors = [];
       for (let j = 0; j < 2; j++) {
-        this.rotors[count].setAttribute("id", "d"+(1-j))
+        this.rotors[count].setAttribute("id", "d" + (1 - j))
         otherRotors.push(this.rotors[count]);
         count++;
       }
-      this.element.appendChild(this._createRotorGroup(otherRotors, i + 1));
+      const rg = this._createRotorGroup(otherRotors, i + 1);
+      this.rotorGroups.push(rg);
+      this.element.appendChild(rg);
     }
     this.element.appendChild(this._createButton());
 
@@ -283,15 +291,37 @@ function appendChildren(parent, children) {
   _createRotorGroup(rotors, rotorIndex) {
     const rotorGroup = document.createElement("div");
     rotorGroup.className = "rotor-group";
-    if (!this.opts.showHour && rotorIndex == 1 ) rotorGroup.className += " hide";
+    if ((!this.opts.showHour || this.opts.showHour == 'auto') && rotorIndex == 1) rotorGroup.className += " hide";
+    if (this.opts.showHour == 'auto' && this.state == 'idle') {
+      rotorGroup.className += " autohour";
+      this.headerShift = true;
+    }
     rotorGroup.setAttribute("id", this.opts.headings[rotorIndex]);
     const dayRotorGroupHeading = document.createElement("div");
     dayRotorGroupHeading.className = "rotor-group-heading";
-    dayRotorGroupHeading.setAttribute(
-      "data-before",
-      this.opts.headings[rotorIndex]
-    );
-    if (this.opts.showHeader) rotorGroup.appendChild(dayRotorGroupHeading);
+
+    if (this.opts.showHeader) {
+      dayRotorGroupHeading.setAttribute(
+        "data-before",
+        this.opts.headings[rotorIndex]
+      );
+      dayRotorGroupHeading.setAttribute(
+        "data-after",
+        this.opts.headings[rotorIndex - 1]
+      );
+    } else { // insert blank text to avoid css fail
+      dayRotorGroupHeading.setAttribute(
+        "data-before",
+        " "
+      );
+      dayRotorGroupHeading.setAttribute(
+        "data-after",
+        " "
+      );
+      dayRotorGroupHeading.className += " no-height";
+    }
+
+    rotorGroup.appendChild(dayRotorGroupHeading);
     appendChildren(rotorGroup, rotors);
     if (rotorIndex < 3) {
       const delimeter = document.createElement("div");
@@ -303,6 +333,7 @@ function appendChildren(parent, children) {
 
       appendChildren(delimeter, [delimeterSpanTop, delimeterSpanBottom]);
       rotorGroup.appendChild(delimeter);
+      if (rotorIndex == 2) this.delimeterBlink = delimeter;
     }
     return rotorGroup;
   }
@@ -346,6 +377,8 @@ function appendChildren(parent, children) {
    **/
   _createRotor(v = 0) {
     const rotor = document.createElement("div");
+    const rotorTransTop = document.createElement("div");
+    const rotorTransBottom = document.createElement("div");
     const rotorLeaf = document.createElement("div");
     const rotorLeafRear = document.createElement("figure");
     const rotorLeafFront = document.createElement("figure");
@@ -355,13 +388,15 @@ function appendChildren(parent, children) {
     rotorLeaf.className = "rotor-leaf";
     rotorLeafRear.className = "rotor-leaf-rear";
     rotorLeafFront.className = "rotor-leaf-front";
+    rotorTransTop.className = "rotor-trans-top";
+    rotorTransBottom.className = "rotor-trans-bottom";
     rotorTop.className = "rotor-top";
     rotorBottom.className = "rotor-bottom";
     rotorLeafFront.textContent = v;
     rotorLeafRear.textContent = v;
     rotorTop.textContent = v;
     rotorBottom.textContent = v;
-    appendChildren(rotor, [rotorLeaf, rotorTop, rotorBottom]);
+    appendChildren(rotor, [rotorTransTop, rotorTransBottom, rotorLeaf, rotorTop, rotorBottom]);
     appendChildren(rotorLeaf, [rotorLeafRear, rotorLeafFront]);
     return rotor;
   }
@@ -375,7 +410,7 @@ function appendChildren(parent, children) {
    * @description Calculate current tick
    * @author PButcher
    **/
-  _tick(reset=false) {
+  _tick(reset = false) {
     // Get time now
 
     this.now = this._getTime();
@@ -413,31 +448,60 @@ function appendChildren(parent, children) {
    * @author PButcher
    * @param {boolean} init - True if calling for initialisation
    **/
-   _updateClockValues(init = false, reset = false) {
-     // Build clock value strings
-     this.clockStrings.d = pad(this.clockValues.d, 2);
-     this.clockStrings.h = pad(this.clockValues.h, 2);
-     this.clockStrings.m = pad(this.clockValues.m, 2);
-     this.clockStrings.s = pad(this.clockValues.s, 2);
+  _updateClockValues(init = false, reset = false) {
+    // Build clock value strings
+    this.clockStrings.d = pad(this.clockValues.d, 2);
+    this.clockStrings.h = pad(this.clockValues.h, 2);
+    this.clockStrings.m = pad(this.clockValues.m, 2);
+    this.clockStrings.s = pad(this.clockValues.s, 2);
 
-     // Concat clock value strings
-     this.clockValuesAsString = (
-       //this.clockStrings.d +
-       this.clockStrings.h +
-       this.clockStrings.m +
-       this.clockStrings.s
-     ).split("");
+    // Concat clock value strings
+    if (this.opts.showHour == 'auto' && ((this.clockValues.h > 0) || this.state == 'idle')) {
+      if (!this.headerShift) {
+        this.rotorGroups.forEach((el) =>
+          el.classList.add("autohour")
+        );
+        this.headerShift = true;
+      }
+      if (this.state == 'active' && !this.delimeterIsBlinking) {
+        this.delimeterBlink.classList.add("blink");
+        this.delimeterIsBlinking = true;
+      } else if (this.state != 'active' && this.delimeterIsBlinking) {
+        this.delimeterBlink.classList.remove("blink");
+        this.delimeterIsBlinking = false;
+      }
+      this.clockValuesAsString = (
+        "00" +
+        this.clockStrings.h +
+        this.clockStrings.m
+      ).split("");
+    } else {
+      if (this.headerShift) {
+        this.rotorGroups.forEach((el) =>
+          el.classList.remove("autohour")
+        );
+        this.headerShift = false;
+      }
+      if (this.delimeterIsBlinking) {
+        this.delimeterBlink.classList.remove("blink");
+        this.delimeterIsBlinking = false;
+      }
+      this.clockValuesAsString = (
+        this.clockStrings.h +
+        this.clockStrings.m +
+        this.clockStrings.s
+      ).split("");
+    }
 
+    // Update rotor values
+    // Note that the faces which are initially visible are:
+    // - rotorLeafFront (top half of current rotor)
+    // - rotorBottom (bottom half of current rotor)
+    // Note that the faces which are initially hidden are:
+    // - rotorTop (top half of next rotor)
+    // - rotorLeafRear (bottom half of next rotor)
 
-     // Update rotor values
-     // Note that the faces which are initially visible are:
-     // - rotorLeafFront (top half of current rotor)
-     // - rotorBottom (bottom half of current rotor)
-     // Note that the faces which are initially hidden are:
-     // - rotorTop (top half of next rotor)
-     // - rotorLeafRear (bottom half of next rotor)
-
-     function rotorLeafFrontSet() {
+    function rotorLeafFrontSet() {
       this.rotorLeafFront.forEach((el, i) => {
         el.textContent = this.prevClockValuesAsString[i];
       });

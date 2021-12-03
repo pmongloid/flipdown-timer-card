@@ -139,7 +139,18 @@ export const styles = css`
     float: left;
   }
 
+  .flipdown .delimeter.blink {
+    animation: blinker 1s linear infinite;
+  }
+
+  @keyframes blinker {
+    50% {
+      opacity: 0;
+    }
+  }
+
   .flipdown .rotor-group-heading {
+    width: calc(var(--rotor-width, 50px) * 2 + 5px);
     height: 30px;
   }
 
@@ -153,20 +164,15 @@ export const styles = css`
     display: none;
   }
 
-  .flipdown .rotor-group:nth-child(1) .rotor-group-heading:before {
-    content: attr(data-before);
+  .flipdown .no-height {
+    height: 0px;
   }
 
-  .flipdown .rotor-group:nth-child(2) .rotor-group-heading:before {
+  .flipdown .rotor-group .rotor-group-heading:before {
     content: attr(data-before);
   }
-
-  .flipdown .rotor-group:nth-child(3) .rotor-group-heading:before {
-    content: attr(data-before);
-  }
-
-  .flipdown .rotor-group:nth-child(4) .rotor-group-heading:before {
-    content: attr(data-before);
+  .flipdown .rotor-group.autohour .rotor-group-heading:before {
+    content: attr(data-after);
   }
 
   .flipdown .rotor:after {
@@ -256,6 +262,7 @@ export const styles = css`
 
   .flipdown .button-group.button-bottom {
     position: relative;
+    margin-top: 5px;
   }
 
   .flipdown .button-group.button-bottom .button-group-heading {
@@ -289,6 +296,19 @@ export const styles = css`
     height: calc(var(--rotor-height, 80px) / 2);
   }
 
+
+  .flipdown .rotor-trans-top,
+  .flipdown .rotor-trans-bottom {
+    position: absolute;
+    width: var(--rotor-width, 50px);
+    height: calc(var(--rotor-height, 80px) / 2);
+    z-index: 1000;
+  }
+
+  .flipdown .rotor-trans-bottom {
+    bottom: 0px;
+  }
+
   .flipdown .rotor-leaf {
     z-index: 1;
     position: absolute;
@@ -308,6 +328,11 @@ export const styles = css`
     transition: all 0.2s ease-in-out;
   }
 
+  .flipdown .rotor-leaf.flippedfr {
+    transform: rotateX(180deg);
+    transition: all 0.2s ease-in-out;
+  }
+
   .flipdown .rotor-leaf-front,
   .flipdown .rotor-leaf-rear {
     overflow: hidden;
@@ -322,13 +347,23 @@ export const styles = css`
 
   .flipdown .rotor-leaf-front {
     line-height: var(--rotor-height, 80px);
-    border-radius: 4px 4px 0px 0px;
+    border-radius: 4px;
   }
 
   .flipdown .rotor-leaf-rear {
     line-height: 0px;
-    border-radius: 0px 0px 4px 4px;
+    border-radius: 4px;
     transform: rotateX(-180deg);
+  }
+
+  .flipdown .front-bottom {
+    bottom: 0px;
+    line-height: 0px;
+  }
+
+  .flipdown .rear-bottom {
+    bottom: 0px;
+    line-height: var(--rotor-height, 80px);
   }
 
   .flipdown .rotor-top {
