@@ -73,7 +73,7 @@ export class FlipdownTimer extends LitElement {
   // https://lit-element.polymer-project.org/guide/properties#accessors-custom
   public setConfig(config: FlipdownTimerCardConfig): void {
     // TODO Check for required fields and that they are of the proper format
-    if (!config) {
+    if (!config || !config.entity) {
       throw new Error(localize('common.invalid_configuration'));
     }
 
@@ -84,6 +84,29 @@ export class FlipdownTimer extends LitElement {
     this.config = {
       ...config,
     };
+
+    let localizeBtn = ["start", "stop", "cancel", "resume", "reset"]
+    let localizeHeader = ["Hours", "Minutes", "Seconds"]
+
+    if (config.hasOwnProperty("localize")) {
+      if (config.localize.button) {
+        const BtnText = config.localize.button.replace(/\s/g, '').split(",");
+        if (BtnText.length === 5) {
+          localizeBtn = BtnText;
+        }
+      }
+      if (config.localize.header) {
+        const BtnText = config.localize.header.replace(/\s/g, '').split(",");
+        if (BtnText.length === 3) {
+          localizeHeader = BtnText;
+        }
+      }
+    }
+    localizeHeader.unshift("Days");
+
+    this.config.localizeBtn = localizeBtn;
+    this.config.localizeHeader = localizeHeader;
+
     if (!this.config.styles) {
       this.config.styles = {
         rotor: false,
@@ -124,9 +147,10 @@ export class FlipdownTimer extends LitElement {
     if (fddiv && !this.fd) this._init();
     this.fd.state = state.state;
 
+    //["start", "stop", "cancel", "resume", "reset"]
     if (state.state === 'active') {
-      this.fd.button1.textContent = "stop";
-      this.fd.button2.textContent = "cancel";
+      this.fd.button1.textContent = this.config.localizeBtn[1];
+      this.fd.button2.textContent = this.config.localizeBtn[2];
       let timeRemaining = durationToSeconds(state.attributes.remaining);
       const madeActive = new Date(state.last_changed).getTime();
       timeRemaining = Math.max(timeRemaining + madeActive / 1000, 0);
@@ -136,13 +160,13 @@ export class FlipdownTimer extends LitElement {
       startInterval();
     } else if (state.state === 'idle') {
       this.fd.stop();
-      this.fd.button1.textContent = "start";
-      this.fd.button2.textContent = "reset";
+      this.fd.button1.textContent =  this.config.localizeBtn[0];
+      this.fd.button2.textContent =  this.config.localizeBtn[4];
       this._reset();
     } else if (state.state === 'paused') {
       this.fd.stop();
-      this.fd.button1.textContent = "resume";
-      this.fd.button2.textContent = "cancel";
+      this.fd.button1.textContent =  this.config.localizeBtn[3];
+      this.fd.button2.textContent =  this.config.localizeBtn[2];
       const timeRemaining = durationToSeconds(state.attributes.remaining);
       this.fd.rt = timeRemaining;
       this.fd._tick(true);
@@ -220,7 +244,8 @@ export class FlipdownTimer extends LitElement {
         show_header: this.config.show_header,
         show_hour: this.config.show_hour,
         bt_location: this.config.styles.button && this.config.styles.button.hasOwnProperty("location") ? this.config.styles.button.location : 'right',
-        theme: this.config.theme
+        theme: this.config.theme,
+        headings: this.config.localizeHeader,
       })._init(state);
     }
 

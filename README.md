@@ -13,22 +13,32 @@ Card for timer entities in the Lovelace user interface of Home Assistant
 
 ## Installation
 
-- Install using HACS. 
+- Install using HACS.
 - Or Download the 'flipdown-timer-card.js' from the latest release.
 
 ## Configuration
 
-| Name       | Type    | Requirement  | Description                                              | Default |
-| ---------- | ------- | ------------ | -------------------------------------------------------- | ------- |
-| type       | string  | **Required** | `custom:flipdown-timer-card`                             |         |
-| entity     | string  | **Required** | Timer entity                                             |         |
-| duration   | string  | **Optional** | Timer duration indicated when idle. Should be 'hh:mm:ss' |         |
-| theme      | string  | **Optional** | Colorscheme : hass, dark, light                          | `hass`  |
-| show_title | boolean | **Optional** | Show card title                                          | `false` |
-| show_hours | boolean | **Optional** | Show hour rotors                                         | `false` |
-| styles     | object  | **Optional** | Card style                                               |         |
+| Name        | Type    | Requirement  | Description                                              | Default |
+| ----------- | ------- | ------------ | -------------------------------------------------------- | ------- |
+| type        | string  | **Required** | `custom:flipdown-timer-card`                             |         |
+| entity      | string  | **Required** | Timer entity                                             |         |
+| duration    | string  | **Optional** | Timer duration indicated when idle. Should be 'hh:mm:ss' |         |
+| theme       | string  | **Optional** | Colorscheme `hass`, `dark`, `light`                      | `hass`  |
+| show_title  | boolean | **Optional** | Show card title                                          | `false` |
+| show_header | boolean | **Optional** | Show rotor headings                                      | `false` |
+| show_hour   | string  | **Optional** | Show hour rotors `true`, `false`, `auto`                 | `false` |
+| styles      | object  | **Optional** | Card style                                               |         |
+| localize    | object  | **Optional** | Card text localization                                   |         |
+
+### **Duration**
 
 Home Assistant timer updates default duration whenever timer starts. if duration is set on this card, it will override default timer duration when idle.
+
+### **Auto Hours**
+
+Set `show_hour` to `auto` to enable auto hours.
+It toggles between HH:MM and MM:SS mode depend on remaining time.
+HH:MM will be displayed when in idle state. To know what is being displayed, it is recommned to enable the headers.
 
 ## Styles Object
 
@@ -67,15 +77,28 @@ Home Assistant timer updates default duration whenever timer starts. if duration
 </tbody>
 </table>
 
-## Example
+## Localize Object
+
+Localize(customize) strings on buttons and headings.
+
+| Key    | Value                                                          |
+| ------ | -------------------------------------------------------------- |
+| button | `start, stop, cancel, resume, reset` in your language(5 words) |
+| header | `Hours, Minutes, Seconds` in your language(3 words)            |
+
+## Full Example
 
 ```yaml
 - type: custom:flipdown-timer-card
   entity: timer.timer
   show_hour: false
   show_title: false
+  show_header: false
   theme: dark
-  duration: '00:00:00'
+  duration: "00:00:00"
+  localize:
+    button: 시작, 정지, 취소, 계속, 리셋
+    header: 시, 분, 초
   styles:
     rotor:
       width: 60px
