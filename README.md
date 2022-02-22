@@ -89,23 +89,23 @@ Localize(customize) strings on buttons and headings.
 ## Full Example
 
 ```yaml
-- type: custom:flipdown-timer-card
-  entity: timer.timer
-  show_hour: false
-  show_title: false
-  show_header: false
-  theme: dark
-  duration: "00:00:00"
-  localize:
-    button: 시작, 정지, 취소, 계속, 리셋
-    header: 시, 분, 초
-  styles:
-    rotor:
-      width: 60px
-      height: 80px
-    button:
-      width: 60px
-      location: bottom
+type: custom:flipdown-timer-card
+entity: timer.timer
+show_hour: false
+show_title: false
+show_header: false
+theme: dark
+duration: "00:00:00"
+localize:
+  button: 시작, 정지, 취소, 계속, 리셋
+  header: 시, 분, 초
+styles:
+  rotor:
+    width: 60px
+    height: 80px
+  button:
+    width: 60px
+    location: bottom
 ```
 
 ## Notes
