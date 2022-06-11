@@ -106,7 +106,7 @@ export class FlipdownTimerCardEditor extends LitElement implements LovelaceCardE
     this._helpers.importMoreInfoControl('climate');
 
     // You can restrict on domain type
-    const entities = Object.keys(this.hass.states).filter(eid => eid.substr(0, eid.indexOf('.')) === 'timer');
+    let entities = Object.keys(this.hass.states).filter(eid => eid.substr(0, eid.indexOf('.')) === 'timer' || eid.substr(0, eid.indexOf('.')) === 'input_datetime');
 
     return html`
       <div class="card-config">

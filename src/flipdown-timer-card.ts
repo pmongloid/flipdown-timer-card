@@ -73,7 +73,7 @@ export class FlipdownTimer extends LitElement {
   // https://lit-element.polymer-project.org/guide/properties#accessors-custom
   public setConfig(config: FlipdownTimerCardConfig): void {
     // TODO Check for required fields and that they are of the proper format
-    if (!config || !config.entity) {
+    if (!config) {
       throw new Error(localize('common.invalid_configuration'));
     }
 
@@ -170,6 +170,21 @@ export class FlipdownTimer extends LitElement {
       const timeRemaining = durationToSeconds(state.attributes.remaining);
       this.fd.rt = timeRemaining;
       this.fd._tick(true);
+    } else {
+      this.fd.button1.textContent = "X";
+      this.fd.button2.textContent = "X";
+
+      let timeRemaining = new Date(state.state).getTime() / 1000;
+      if (isNaN(timeRemaining) || timeRemaining < 1) {
+        this.fd.rt = 0;
+        this.fd.stop();
+        this.fd._tick(true);
+      } else {
+        this.fd._updator(timeRemaining);
+        this.fd.start();
+        fdComponent.push(this);
+        startInterval();
+      }
     }
     return true;
   }
@@ -224,7 +239,10 @@ export class FlipdownTimer extends LitElement {
             --rotor-width:  ${(this.config.styles.rotor && this.config.styles.rotor.width) || '50px'};
             --rotor-height: ${(this.config.styles.rotor && this.config.styles.rotor.height) || '80px'};
             --rotor-space:  ${(this.config.styles.rotor && this.config.styles.rotor.space) || '20px'};
-            ${(this.config.styles.button && this.config.styles.button.width) && '--button-width: ' + this.config.styles.button.width }
+            --rotor-fontsize:  ${(this.config.styles.rotor && this.config.styles.rotor.fontsize) || '4rem'};
+            --button-fontsize:  ${(this.config.styles.button && this.config.styles.button.fontsize) || '1em'};
+            ${(this.config.styles.button && this.config.styles.button.width) && '--button-width: ' + this.config.styles.button.width + ';'}
+            ${(this.config.styles.button && this.config.styles.button.height) && '--button-height: ' + this.config.styles.button.height + ';' }
           ">
             <div id="flipdown" class="flipdown"></div>
           </div>
@@ -273,7 +291,7 @@ export class FlipdownTimer extends LitElement {
   private _handleRotorClick(item: any, param: number, inc: boolean): boolean {
     const state = this.hass.states[this.config.entity!].state;
     if (state !== 'idle') return false;
-    const max = [5, 9, 5, 9, 5, 9];
+    const max = [9, 9, 5, 9, 5, 9];
 
     const rotorTarget = item.offsetParent;
 

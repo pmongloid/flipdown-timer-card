@@ -207,7 +207,7 @@ export const styles = css`
     height: var(--rotor-height, 80px);
     margin: 0px 5px 0px 0px;
     border-radius: 4px;
-    font-size: 4rem;
+    font-size: var(--rotor-fontsize);
     text-align: center;
     perspective: 200px;
   }
@@ -238,7 +238,6 @@ export const styles = css`
     height: var(--rotor-height, 80px);
     margin: 0px 0px 0px 0px;
     border-radius: 4px;
-    font-size: 4rem;
     text-align: center;
   }
 
@@ -254,6 +253,7 @@ export const styles = css`
     border-radius: 4px;
     border: 0px;
     font-family: sans-serif;
+    font-size: var(--button-fontsize);
   }
 
   .flipdown .button-group.button-right .btn-bottom {
@@ -274,11 +274,12 @@ export const styles = css`
     overflow: hidden;
     width: var(--button-width, calc(var(--rotor-width, 50px) * 2 + 5px));
     margin: 0px;
-    height: 20px;
+    height: var(--button-height, 20px);
     padding: 0px;
     border-radius: 4px;
     border: 0px;
     font-family: sans-serif;
+    font-size: var(--button-fontsize);
   }
   .flipdown .button-group.button-bottom .btn-bottom {
     margin-left: var(--rotor-space, 20px);
@@ -326,6 +327,11 @@ export const styles = css`
   .flipdown .rotor-leaf.flippedf {
     transform: rotateX(-180deg);
     transition: all 0.2s ease-in-out;
+  }
+
+  .flipdown .rotor-leaf.flippedr {
+    transform: rotateX(180deg);
+    transition: all 0.5s ease-in-out;
   }
 
   .flipdown .rotor-leaf.flippedfr {

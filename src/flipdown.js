@@ -46,6 +46,7 @@ export class FlipDown {
     this.button2 = null;
     // FlipDown version
     this.version = "0.3.2";
+    this._sign = true;
 
     // Initialised?
     this.initialised = false;
@@ -416,12 +417,27 @@ export class FlipDown {
     this.now = this._getTime();
 
     // Between now and epoch
-    let diff = Math.floor(this.epoch - this.now <= 0 ? 0 : this.epoch - this.now);
+    //let diff = Math.floor(this.epoch - this.now <= 0 ? 0 : this.epoch - this.now);
+    let diff;
+
+    if (this.epoch - this.now >= 0) {
+      diff = Math.floor(this.epoch - this.now);
+      this._sign = true;
+    } else {
+      diff = 0;
+      this._sign = true;
+      /*
+      diff = Math.floor(this.now - this.epoch);
+      if (diff > 0) this._sign  = false;
+      */
+    }
+
     if (this.rt != null) diff = this.rt;
 
     // Days remaining
-    this.clockValues.d = Math.floor(diff / 86400);
-    diff -= this.clockValues.d * 86400;
+    //this.clockValues.d = Math.floor(diff / 86400);
+    //diff -= this.clockValues.d * 86400;
+    this.clockValues.d = 0;
 
     // Hours remaining
     this.clockValues.h = Math.floor(diff / 3600);
@@ -509,6 +525,12 @@ export class FlipDown {
 
     function rotorBottomSet() {
       this.rotorBottom.forEach((el, i) => {
+        el.textContent = this.clockValuesAsString[i];
+      });
+    }
+
+    function rotorTopSet() {
+      this.rotorTop.forEach((el, i) => {
         el.textContent = this.prevClockValuesAsString[i];
       });
     }
@@ -525,10 +547,12 @@ export class FlipDown {
       this.rotorLeafRear.forEach((el, i) => {
         if (el.textContent != this.clockValuesAsString[i]) {
           el.textContent = this.clockValuesAsString[i];
-          el.parentElement.classList.add("flipped");
+          let animationType = (this._sign)? "flipped":"flippedr"
+          el.parentElement.classList.add(animationType);
           const flip = setInterval(
             function () {
-              el.parentElement.classList.remove("flipped");
+              el.parentElement.classList.remove(animationType);
+              rotorRevPost.call(this);
               clearInterval(flip);
             }.bind(this),
             500
@@ -537,13 +561,41 @@ export class FlipDown {
       });
     }
 
-    rotorTopFlip.call(this);
+    function rotorRev() {
+      this.rotorLeafFront.forEach((el, i) => {
+        el.classList.add("front-bottom");
+      });
+      this.rotorLeafRear.forEach((el, i) => {
+        el.classList.add("rear-bottom");
+      });
+      rotorBottomSet.call(this);
+    }
+
+    function rotorRevPost() {
+      this.rotorLeafFront.forEach((el, i) => {
+        el.classList.remove("front-bottom");
+      });
+      this.rotorLeafRear.forEach((el, i) => {
+        el.classList.remove("rear-bottom");
+      });
+    }
+
+    if (this._sign) {
+      rotorTopFlip.call(this);
+    } else {
+      rotorRev.call(this);
+    }
     rotorLeafRearFlip.call(this);
+
 
     // Init
     if (!init) {
       setTimeout(rotorLeafFrontSet.bind(this), 500);
-      setTimeout(rotorBottomSet.bind(this), 500);
+      if (this._sign) {
+        setTimeout(rotorBottomSet.bind(this), 500);
+      } else {
+        setTimeout(rotorTopSet.bind(this), 500);
+      }
     } else {
       rotorTopFlip.call(this);
       rotorLeafRearFlip.call(this);

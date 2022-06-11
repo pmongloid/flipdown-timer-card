@@ -21,7 +21,7 @@ Card for timer entities in the Lovelace user interface of Home Assistant
 | Name        | Type    | Requirement  | Description                                              | Default |
 | ----------- | ------- | ------------ | -------------------------------------------------------- | ------- |
 | type        | string  | **Required** | `custom:flipdown-timer-card`                             |         |
-| entity      | string  | **Required** | Timer entity                                             |         |
+| entity      | string  | **Required** | Timer, Input_datetime(with both date and time) entity                                            |         |
 | duration    | string  | **Optional** | Timer duration indicated when idle. Should be 'hh:mm:ss' |         |
 | theme       | string  | **Optional** | Colorscheme `hass`, `dark`, `light`                      | `hass`  |
 | show_title  | boolean | **Optional** | Show card title                                          | `false` |
@@ -40,6 +40,10 @@ Set `show_hour` to `auto` to enable auto hours.
 It toggles between HH:MM and MM:SS mode depend on remaining time.
 HH:MM will be displayed when in idle state. To know what is being displayed, it is recommned to enable the headers.
 
+### **Input_datetime(Or non-timer) entity**
+
+If the input_datetime entities have both time and date, the timer will work toward it.
+
 ## Styles Object
 
 <table>
@@ -53,7 +57,7 @@ HH:MM will be displayed when in idle state. To know what is being displayed, it 
 </thead>
 <tbody>
 <tr>
-<td rowspan=2>rotor</td>
+<td rowspan=3>rotor</td>
 <td>width</td>
 <td>single rotor width</td>
 <td>50px</td>
@@ -64,15 +68,30 @@ HH:MM will be displayed when in idle state. To know what is being displayed, it 
 <td>80px</td>
 </tr>
 <tr>
-<td rowspan=2>button</td>
+<td>fontsize</td>
+<td>font size on rotors</td>
+<td>4rem</td>
+</tr>
+<tr>
+<td rowspan=4>button</td>
 <td>width</td>
 <td>button width</td>
 <td>50px</td>
 </tr>
 <tr>
+<td>height</td>
+<td>button height(only works when button position is below)</td>
+<td>20px</td>
+</tr>
+<tr>
 <td>location</td>
-<td>button location(right, bottom, hide)</td>
+<td>button location : right, bottom, hide</td>
 <td>right</td>
+</tr>
+<tr>
+<td>fontsize</td>
+<td>font size on buttons</td>
+<td>1em</td>
 </tr>
 </tbody>
 </table>
@@ -103,8 +122,11 @@ styles:
   rotor:
     width: 60px
     height: 80px
+    fontsize: 4rem
   button:
     width: 60px
+    height: 30px
+    fontsize: 1.5em
     location: bottom
 ```
 
