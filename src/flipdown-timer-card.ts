@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-/* eslint-disable @typescript-eslint/camelcase */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   LitElement,
@@ -60,7 +59,7 @@ export class FlipdownTimer extends LitElement {
     return document.createElement('flipdown-timer-card-editor');
   }
 
-  public static getStubConfig(): object {
+  public static getStubConfig(): Record<string, unknown> {
     return {};
   }
 
@@ -269,7 +268,6 @@ export class FlipdownTimer extends LitElement {
       button_location = 'hide';
     }
 
-    // eslint-disable-next-line @typescript-eslint/camelcase
     if (!this.fd) {
       this.fd = new FlipDown(timeRemaining, fddiv, {
         show_header: this.config.show_header,
