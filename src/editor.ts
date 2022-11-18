@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable @typescript-eslint/camelcase */
 import { LitElement, html, TemplateResult, css, CSSResultGroup } from 'lit';
 import { HomeAssistant, fireEvent, LovelaceCardEditor, ActionConfig } from 'custom-card-helpers';
 
@@ -106,7 +105,7 @@ export class FlipdownTimerCardEditor extends LitElement implements LovelaceCardE
     this._helpers.importMoreInfoControl('climate');
 
     // You can restrict on domain type
-    let entities = Object.keys(this.hass.states).filter(eid => eid.substr(0, eid.indexOf('.')) === 'timer' || eid.substr(0, eid.indexOf('.')) === 'input_datetime' || eid.substr(0, eid.indexOf('.')) === 'sensor');
+    const entities = Object.keys(this.hass.states).filter(eid => eid.substr(0, eid.indexOf('.')) === 'timer' || eid.substr(0, eid.indexOf('.')) === 'input_datetime' || eid.substr(0, eid.indexOf('.')) === 'sensor');
 
     return html`
       <div class="card-config">
