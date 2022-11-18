@@ -40,9 +40,10 @@ Set `show_hour` to `auto` to enable auto hours.
 It toggles between HH:MM and MM:SS mode depend on remaining time.
 HH:MM will be displayed when in idle state. To know what is being displayed, it is recommned to enable the headers.
 
-### **Input_datetime(Or non-timer) entity**
+### **Non-timer entity**
 
-If the input_datetime entities have both time and date, the timer will work toward it.
+- Input_datetime entities with both time and date.
+- Alexa next alarm sensor from [ Alexa Media Player](https://github.com/custom-components/alexa_media_player).
 
 ## Styles Object
 

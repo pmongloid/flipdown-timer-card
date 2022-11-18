@@ -174,7 +174,7 @@ export class FlipdownTimer extends LitElement {
       this.fd.button1.textContent = "X";
       this.fd.button2.textContent = "X";
 
-      let timeRemaining = new Date(state.state).getTime() / 1000;
+      const timeRemaining = new Date(state.state).getTime() / 1000;
       if (isNaN(timeRemaining) || timeRemaining < 1) {
         this.fd.rt = 0;
         this.fd.stop();
@@ -254,14 +254,27 @@ export class FlipdownTimer extends LitElement {
     const fddiv = this.shadowRoot?.getElementById('flipdown');
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const timeRemaining = new Date().getTime() / 1000;
+
+    const domain = this.config.entity.substring(0,this.config.entity.indexOf('.'))
     const state = this.hass.states[this.config.entity!].state;
+    let button_location;
+
+    if (domain == 'timer') {
+      if (this.config.styles.button && this.config.styles.button.hasOwnProperty("location")) {
+        button_location = this.config.styles.button.location;
+      } else {
+        button_location = 'right';
+      }
+    } else {
+      button_location = 'hide';
+    }
 
     // eslint-disable-next-line @typescript-eslint/camelcase
     if (!this.fd) {
       this.fd = new FlipDown(timeRemaining, fddiv, {
         show_header: this.config.show_header,
         show_hour: this.config.show_hour,
-        bt_location: this.config.styles.button && this.config.styles.button.hasOwnProperty("location") ? this.config.styles.button.location : 'right',
+        bt_location: button_location,
         theme: this.config.theme,
         headings: this.config.localizeHeader,
       })._init(state);
